@@ -1,0 +1,12 @@
+[submodule "tor"]
+	path = tor
+	url = https://github.com/torproject/tor.git
+[submodule "libevent"]
+	path = libevent
+	url = https://github.com/libevent/libevent.git
+[submodule "openssl"]
+	path = openssl
+	url = https://github.com/openssl/openssl.git
+[submodule "zlib"]
+	path = zlib
+	url = https://github.com/madler/zlib.git
