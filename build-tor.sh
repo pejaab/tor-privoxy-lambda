@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
 
-pushd /opt/src/libevent
-./autogen.sh
-./configure
-make
-make -j8 install
+pushd /opt/src/openssl
+./config no-shared --prefix=/opt/openssl --openssldir=/opt/openssl
+make -j8
+make install
 popd
 
-pushd /opt/src/openssl
-./config
+# https://github.com/openssl/openssl/issues/3993
+
+#echo "/opt/openssl/lib" > /etc/ld.so.conf
+#ldconfig
+
+pushd /opt/src/libevent
+export PKG_CONFIG_PATH=/opt/openssl/lib/pkgconfig
+export LDFLAGS='-ldl'
+./autogen.sh
+./configure --prefix=/opt/libevent
 make -j8
+make install
 popd
 
 pushd /opt/src/zlib
@@ -17,13 +25,14 @@ pushd /opt/src/zlib
 make -j8
 popd
 
+# https://gitlab.torproject.org/ahf-admin/legacy-20/issues/27802
 pushd /opt/src/tor
 ./autogen.sh
 ./configure \
-  --enable-static-tor \
-  --enable-static-libevent --with-libevent-dir=/usr/local/lib \
-  --enable-static-openssl --with-openssl-dir=/opt/src/openssl
-  --enable-static-zlib --with-zlib-dir=/usr/local/lib
+  --enable-static-libevent --with-libevent-dir=/opt/libevent \
+  --enable-static-openssl --with-openssl-dir=/opt/openssl \
+  --enable-static-zlib --with-zlib-dir=/opt/src/zlib \
+  --disable-asciidoc
 make -j8
 rm -rf /opt/output/bin
 mkdir -p /opt/output/bin
